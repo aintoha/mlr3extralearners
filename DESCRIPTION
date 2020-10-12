@@ -3,15 +3,15 @@ Title: Extra Learners For mlr3
 Version: 0.1.0
 Authors@R:
     c(person(given = "Raphael",
-           family = "Sonabend",
-           role = c("aut", "cre"),
-           email = "raphael.sonabend.15@ucl.ac.uk",
-           comment = c(ORCID = "0000-0001-9225-4654")),
+             family = "Sonabend",
+             role = c("aut", "cre"),
+             email = "raphael.sonabend.15@ucl.ac.uk",
+             comment = c(ORCID = "0000-0001-9225-4654")),
       person(given = "Patrick",
-           family = "Schratz",
-           role = "aut",
-           email = "patrick.schratz@gmail.com",
-           comment = c(ORCID = "0000-0003-0748-6624")))
+             family = "Schratz",
+             role = "aut",
+             email = "patrick.schratz@gmail.com",
+             comment = c(ORCID = "0000-0003-0748-6624")))
 Description: Extra learners for use in mlr3.
 License: LGPL-3
 Depends:
@@ -63,16 +63,17 @@ Suggests:
     sm,
     survival,
     survivalsvm,
+    TDA,
     tensorflow (>= 2.0.0),
     testthat
 LinkingTo: 
     Rcpp
 Remotes:
+    alan-turing-institute/distr6,
     mlr-org/mlr3,
     mlr-org/mlr3learners,
-    mlr-org/mlr3proba,
-    alan-turing-institute/distr6
+    mlr-org/mlr3proba
 Encoding: UTF-8
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
