@@ -36,7 +36,7 @@
 #' @template example
 #' @export
 LearnerSurvSVM = R6Class("LearnerSurvSVM",
-  inherit = LearnerSurv,
+  inherit = mlr3proba::LearnerSurv,
 
   public = list(
     #' @description
@@ -99,15 +99,17 @@ LearnerSurvSVM = R6Class("LearnerSurvSVM",
       crank = as.numeric(fit$predicted)
 
       if (is.null(self$param_set$values$type) ||
-        (self$param_set$values$type %in% c("regression", "hybrid"))) {
+          (self$param_set$values$type %in% c("regression", "hybrid"))) {
+        # higher survival time = lower risk
         response = crank
       } else {
         response = NULL
       }
 
-      list(crank = crank, response = response)
+      # higher rank = higher risk
+      list(crank = -crank, response = response)
     }
   )
 )
 
-lrns_dict$add("surv.svm", LearnerSurvSVM)
+.extralrns_dict$add("surv.svm", LearnerSurvSVM)

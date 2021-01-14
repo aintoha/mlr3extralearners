@@ -20,7 +20,7 @@ lrn("dens.locfit")
 \itemize{
 \item Packages: locfit
 \item Predict Types: pdf
-\item Feature Types:
+\item Feature Types: integer, numeric
 \item Properties:
 }
 }

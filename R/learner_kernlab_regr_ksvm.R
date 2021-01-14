@@ -16,7 +16,6 @@ LearnerRegrKSVM = R6Class("LearnerRegrKSVM",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
-
       ps = ParamSet$new(list(
         ParamLgl$new(id = "scaled", default = TRUE, tags = "train"),
         ParamFct$new(
@@ -74,7 +73,6 @@ LearnerRegrKSVM = R6Class("LearnerRegrKSVM",
 
   private = list(
     .train = function(task) {
-
       pars = self$param_set$get_values(tags = "train")
       kpar = intersect(
         c("sigma", "degree", "scale", "order", "offset"),
@@ -106,4 +104,4 @@ LearnerRegrKSVM = R6Class("LearnerRegrKSVM",
   )
 )
 
-lrns_dict$add("regr.ksvm", LearnerRegrKSVM)
+.extralrns_dict$add("regr.ksvm", LearnerRegrKSVM)

@@ -46,7 +46,7 @@ LearnerRegrGLMBoost = R6Class("LearnerRegrGLMBoost",
           ParamUty$new(id = "oobweights", default = NULL, tags = "train"),
           ParamLgl$new(id = "trace", default = FALSE, tags = "train"),
           ParamUty$new(id = "stopintern", default = FALSE, tags = "train"),
-          ParamUty$new(id = "na.action", default = na.omit, tags = "train"),
+          ParamUty$new(id = "na.action", default = stats::na.omit, tags = "train"),
           ParamUty$new(id = "contrasts.arg", tags = "train")
         )
       )
@@ -68,7 +68,6 @@ LearnerRegrGLMBoost = R6Class("LearnerRegrGLMBoost",
     .train = function(task) {
 
       # Set to default for switch
-
       if (is.null(self$param_set$values$family)) {
         self$param_set$values = insert_named(
           self$param_set$values,
@@ -77,11 +76,11 @@ LearnerRegrGLMBoost = R6Class("LearnerRegrGLMBoost",
 
       pars = self$param_set$get_values(tags = "train")
       pars_boost = pars[which(names(pars) %in%
-        formalArgs(mboost::boost_control))]
+                                methods::formalArgs(mboost::boost_control))]
       pars_glmboost = pars[which(names(pars) %in%
-        formalArgs(mboost::gamboost))]
+                                   methods::formalArgs(mboost::gamboost))]
       pars_family = pars[which(names(pars) %in%
-        formalArgs(getFromNamespace(
+                                 methods::formalArgs(utils::getFromNamespace(
           pars_glmboost$family,
           asNamespace("mboost"))))]
 
@@ -119,4 +118,4 @@ LearnerRegrGLMBoost = R6Class("LearnerRegrGLMBoost",
   )
 )
 
-lrns_dict$add("regr.glmboost", LearnerRegrGLMBoost)
+.extralrns_dict$add("regr.glmboost", LearnerRegrGLMBoost)

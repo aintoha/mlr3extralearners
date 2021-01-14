@@ -62,8 +62,12 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo R CMD javareconf
-          sudo apt install ccache libcurl4-openssl-dev
+          sudo apt install ccache libcurl4-openssl-dev libgit2-dev
           mkdir -p ~/.R && echo -e 'CXX_STD = CXX14\n\nCC=ccache gcc -std=gnu99\nCXX=ccache g++\nCXX11=ccache g++ -std=gnu99\nCXX14=ccache g++ -std=gnu99\nC11=ccache g++\nC14=ccache g++\nFC=ccache gfortran\nF77=ccache gfortran' > $HOME/.R/Makevars
+        
+      - name: "[Custom block] [Stage] [Linux] Install pkgdown system lib req"
+        if: runner.os == 'Linux'
+        run: sudo apt install libharfbuzz-dev libfribidi-dev
 
       - name: "[Stage] Install"
         if: matrix.config.os != 'macOS-latest' || matrix.config.r != 'devel'
@@ -94,11 +98,13 @@ jobs:
           path: check
      
       - name: "[Stage] Update learner table"
+        if: ${{ github.event_name != 'pull_request'}}
         run: |
           R CMD INSTALL .
           Rscript build_learner_table.R
 
       - name: Commit files
+        if: ${{ github.event_name != 'pull_request'}}
         run: |
           git add R/sysdata.rda
           git config --local user.email "action@github.com"
@@ -106,16 +112,20 @@ jobs:
           git diff-index --quiet HEAD || git commit -m "Update learner table"
 
       - name: Push changes
+        if: ${{ github.event_name != 'pull_request'}}
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: "[Stage] Before Deploy"
+        if: ${{ github.event_name != 'pull_request'}}
         run: |
           Rscript -e "tic::before_deploy()"
 
       - name: "[Stage] Deploy"
+        if: ${{ github.event_name != 'pull_request'}}
         run: Rscript -e "tic::deploy()"
 
       - name: "[Stage] After Deploy"
+        if: ${{ github.event_name != 'pull_request'}}
         run: Rscript -e "tic::after_deploy()"

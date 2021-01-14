@@ -18,9 +18,9 @@ lrn("dens.kde_ks")
 \section{Traits}{
 
 \itemize{
-\item Packages: ks
-\item Predict Types: pdf
-\item Feature Types: logical, integer, numeric, character, factor, ordered
+\item Packages: ks, distr6
+\item Predict Types: pdf, distr
+\item Feature Types: integer, numeric
 \item Properties:
 }
 }

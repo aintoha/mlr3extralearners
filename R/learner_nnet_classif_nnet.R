@@ -25,6 +25,8 @@ LearnerClassifNnet = R6Class("LearnerClassifNnet",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
+      
+      warning("classif.nnet is now deprecated from mlr3extralearners, for use in the future please load mlr3learners >= 0.4.3.")
 
       ps = ParamSet$new(
         params = list(
@@ -104,4 +106,4 @@ LearnerClassifNnet = R6Class("LearnerClassifNnet",
   )
 )
 
-lrns_dict$add("classif.nnet", LearnerClassifNnet)
+.extralrns_dict$add("classif.nnet", LearnerClassifNnet)

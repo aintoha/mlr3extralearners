@@ -10,7 +10,7 @@
 #' @template example
 #' @export
 LearnerDensKDEks = R6Class("LearnerDensKDEks",
-  inherit = LearnerDens,
+  inherit = mlr3proba::LearnerDens,
 
   public = list(
     #' @description
@@ -40,9 +40,9 @@ LearnerDensKDEks = R6Class("LearnerDensKDEks",
 
       super$initialize(
         id = "dens.kde_ks",
-        packages = "ks",
-        feature_types = c("logical", "integer", "numeric", "character", "factor", "ordered"),
-        predict_types = "pdf",
+        packages = c("ks", "distr6"),
+        feature_types = c("integer", "numeric"),
+        predict_types = c("pdf", "distr"),
         param_set = ps,
         man = "mlr3extralearners::mlr_learners_dens.kde_ks"
       )
@@ -53,7 +53,7 @@ LearnerDensKDEks = R6Class("LearnerDensKDEks",
     .train = function(task) {
       pars = self$param_set$get_values(tag = "train")
 
-      data = task$truth()
+      data = task$data()[[1]]
 
       pdf <- function(x) {
       }
@@ -61,16 +61,31 @@ LearnerDensKDEks = R6Class("LearnerDensKDEks",
         invoke(ks::kde, x = data, eval.points = x, .args = pars)$estimate
       })
 
-      distr6::Distribution$new(
+      if (is.null(pars$h)) {
+        bw  = ks::hpi(data)
+      } else {
+        bw = pars$h}
+
+      ps = distr6::ParameterSet$new(id = list("bandwidth", "kernel"),
+                            value =  list(bw, "Norm"),
+                            support = list(set6::Reals$new(),
+                                           set6::Set$new(elements = as.list(distr6::listKernels()[,1]))
+                            ))
+
+      structure(list(distr = distr6::Distribution$new(
         name = "ks KDE",
         short_name = "ksKDE",
-        pdf = pdf, type = set6::Reals$new())
+        pdf = pdf, type = set6::Reals$new(),
+        parameters = ps),
+        bandwith = bw,
+        kernel = "Norm"))
     },
 
     .predict = function(task) {
-      list(pdf = self$model$pdf(task$truth()))
+      list(pdf = self$model$distr$pdf(task$data()[[1]]),
+           distr = self$model$distr)
     }
   )
 )
 
-lrns_dict$add("dens.kde_ks", LearnerDensKDEks)
+.extralrns_dict$add("dens.kde_ks", LearnerDensKDEks)

@@ -19,8 +19,8 @@ lrn("dens.mixed")
 
 \itemize{
 \item Packages: np
-\item Predict Types: pdf
-\item Feature Types: logical, integer, numeric, character, factor, ordered
+\item Predict Types: pdf, distr
+\item Feature Types: integer, numeric
 \item Properties:
 }
 }

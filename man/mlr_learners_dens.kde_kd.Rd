@@ -19,8 +19,8 @@ lrn("dens.kde_kd")
 
 \itemize{
 \item Packages: kerdiest
-\item Predict Types: pdf
-\item Feature Types: logical, integer, numeric, character, factor, ordered
+\item Predict Types: pdf, distr
+\item Feature Types: integer, numeric
 \item Properties:
 }
 }

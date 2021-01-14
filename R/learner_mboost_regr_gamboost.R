@@ -48,7 +48,7 @@ LearnerRegrGAMBoost = R6Class("LearnerRegrGAMBoost",
           ParamUty$new(id = "oobweights", default = NULL, tags = "train"),
           ParamLgl$new(id = "trace", default = FALSE, tags = "train"),
           ParamUty$new(id = "stopintern", default = FALSE, tags = "train"),
-          ParamUty$new(id = "na.action", default = na.omit, tags = "train")
+          ParamUty$new(id = "na.action", default = stats::na.omit, tags = "train")
         )
       )
       ps$add_dep("oobweights", "risk", CondEqual$new("oobag"))
@@ -69,18 +69,17 @@ LearnerRegrGAMBoost = R6Class("LearnerRegrGAMBoost",
     .train = function(task) {
 
       # Set to default for switch
-
       if (is.null(self$param_set$values$family)) {
         self$param_set$values$family = "Gaussian"
       }
 
       pars = self$param_set$get_values(tags = "train")
       pars_boost = pars[which(names(pars) %in%
-        formalArgs(mboost::boost_control))]
+                                methods::formalArgs(mboost::boost_control))]
       pars_gamboost = pars[which(names(pars) %in%
-        formalArgs(mboost::gamboost))]
+                                   methods::formalArgs(mboost::gamboost))]
       pars_family = pars[which(names(pars) %in%
-        formalArgs(getFromNamespace(
+                                 methods::formalArgs(utils::getFromNamespace(
           pars_gamboost$family,
           asNamespace("mboost"))))]
 
@@ -104,7 +103,7 @@ LearnerRegrGAMBoost = R6Class("LearnerRegrGAMBoost",
       )
 
       ctrl = invoke(mboost::boost_control, .args = pars_boost)
-      withr::with_package("mboost", { # baselearner argument requires attached mboost package
+      mlr3misc::with_package("mboost", { # baselearner argument requires attached mboost package
         invoke(mboost::gamboost,
           formula = f, data = data, control = ctrl,
           .args = pars_gamboost)
@@ -120,4 +119,4 @@ LearnerRegrGAMBoost = R6Class("LearnerRegrGAMBoost",
   )
 )
 
-lrns_dict$add("regr.gamboost", LearnerRegrGAMBoost)
+.extralrns_dict$add("regr.gamboost", LearnerRegrGAMBoost)

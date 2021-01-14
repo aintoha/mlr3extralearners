@@ -25,8 +25,7 @@
 #' @export
 #' @template seealso_learner
 #' @template example
-LearnerClassifMob = R6Class("LearnerClassifMob",
-  inherit = LearnerClassif,
+LearnerClassifMob = R6Class("LearnerClassifMob", inherit = LearnerClassif,
   public = list(
 
     #' @description
@@ -34,8 +33,7 @@ LearnerClassifMob = R6Class("LearnerClassifMob",
     initialize = function() {
       ps = ParamSet$new(list(
         # missing: subset, na.action, weights (see bottom)
-        ParamUty$new("rhs",
-          custom_check = checkmate::check_character,
+        ParamUty$new("rhs", custom_check = checkmate::check_character,
           tags = "train"),
         ParamUty$new("fit", custom_check = function(x) {
           checkmate::check_function(x,
@@ -44,19 +42,17 @@ LearnerClassifMob = R6Class("LearnerClassifMob",
         ParamUty$new("offset", tags = "train"),
         ParamUty$new("cluster", tags = "train"),
         # all in mob_control()
-        ParamDbl$new("alpha",
-          default = 0.05, lower = 0, upper = 1,
+        ParamDbl$new("alpha", default = 0.05, lower = 0, upper = 1,
           tags = "train"),
         ParamLgl$new("bonferroni", default = TRUE, tags = "train"),
         # minsize, minsplit, minbucket are equivalent, adaptive default
         ParamInt$new("minsize", lower = 1L, tags = "train"),
         ParamInt$new("minsplit", lower = 1L, tags = "train"),
         ParamInt$new("minbucket", lower = 1L, tags = "train"),
-        ParamInt$new("maxdepth",
-          default = Inf, lower = 0L,
+        ParamInt$new("maxvar", lower = 1L, tags = "train"),
+        ParamInt$new("maxdepth", default = Inf, lower = 0L,
           special_vals = list(Inf), tags = "train"),
-        ParamInt$new("mtry",
-          default = Inf, lower = 0L,
+        ParamInt$new("mtry", default = Inf, lower = 0L,
           special_vals = list(Inf), tags = "train"),
         ParamDbl$new("trim", default = 0.1, lower = 0, tags = "train"),
         ParamLgl$new("breakties", default = FALSE, tags = "train"),
@@ -66,35 +62,27 @@ LearnerClassifMob = R6Class("LearnerClassifMob",
         ParamLgl$new("restart", default = TRUE, tags = "train"),
         ParamLgl$new("verbose", default = FALSE, tags = "train"),
         ParamLgl$new("caseweights", default = TRUE, tags = "train"),
-        ParamFct$new("ytype",
-          default = "vector",
+        ParamFct$new("ytype", default = "vector",
           levels = c("vector", "matrix", "data.frame"), tags = "train"),
-        ParamFct$new("xtype",
-          default = "matrix",
+        ParamFct$new("xtype", default = "matrix",
           levels = c("vector", "matrix", "data.frame"), tags = "train"),
         ParamUty$new("terminal", default = "object", tags = "train"),
         ParamUty$new("inner", default = "object", tags = "train"),
         ParamLgl$new("model", default = TRUE, tags = "train"),
-        ParamFct$new("numsplit",
-          default = "left", levels = c("left", "center"),
+        ParamFct$new("numsplit", default = "left", levels = c("left", "center"),
           tags = "train"),
-        ParamFct$new("catsplit",
-          default = "binary",
+        ParamFct$new("catsplit", default = "binary",
           levels = c("binary", "multiway"), tags = "train"),
-        ParamFct$new("vcov",
-          default = "opg",
+        ParamFct$new("vcov", default = "opg",
           levels = c("opg", "info", "sandwich"), tags = "train"),
-        ParamFct$new("ordinal",
-          default = "chisq",
+        ParamFct$new("ordinal", default = "chisq",
           levels = c("chisq", "max", "L2"), tags = "train"),
         ParamInt$new("nrep", default = 10000, lower = 0L, tags = "train"),
         ParamUty$new("applyfun", tags = "train"),
-        ParamInt$new("cores",
-          default = NULL, special_vals = list(NULL),
+        ParamInt$new("cores", default = NULL, special_vals = list(NULL),
           tags = "train"),
         # additional arguments passed to fitting function
-        ParamUty$new("additional",
-          custom_check = checkmate::check_list,
+        ParamUty$new("additional", custom_check = checkmate::check_list,
           tags = "train"),
         # the predict function depends on the predict method of the fitting
         # function itself and can be passed via type, see predict.modelparty
@@ -115,8 +103,7 @@ LearnerClassifMob = R6Class("LearnerClassifMob",
         param_set = ps,
         # predict, features and properties depend on the fitting function itself
         predict_types = c("response", "prob"),
-        feature_types = c(
-          "logical", "integer", "numeric", "character",
+        feature_types = c("logical", "integer", "numeric", "character",
           "factor", "ordered"),
         properties = c("weights", "twoclass", "multiclass"),
         packages = c("partykit", "sandwich", "coin"),
@@ -129,11 +116,10 @@ LearnerClassifMob = R6Class("LearnerClassifMob",
     .train = function(task) {
 
       # FIXME: check if rhs variables are present in data?
-
       formula = task$formula(self$param_set$values$rhs)
       pars = self$param_set$get_values(tags = "train")
       pars_control = pars[which(names(pars) %in%
-        formalArgs(partykit::mob_control))]
+                                  methods::formalArgs(partykit::mob_control))]
       pars_additional = self$param_set$values$additional
       pars = pars[names(pars) %nin%
         c("rhs", names(pars_control), "additional")]
@@ -158,8 +144,7 @@ LearnerClassifMob = R6Class("LearnerClassifMob",
       # type is the type argument passed to predict.modelparty
       # (actually a predict function used to compute the predictions as we want)
       # .type is then the actual predict type as set for the learner
-      preds = mlr3misc::invoke(predict,
-        object = self$model, newdata = newdata,
+      preds = mlr3misc::invoke(predict, object = self$model, newdata = newdata,
         type = self$param_set$values$predict_fun, task = task,
         .type = self$predict_type)
       if (self$predict_type == "response") {
@@ -171,4 +156,4 @@ LearnerClassifMob = R6Class("LearnerClassifMob",
   )
 )
 
-lrns_dict$add("classif.mob", LearnerClassifMob)
+.extralrns_dict$add("classif.mob", LearnerClassifMob)

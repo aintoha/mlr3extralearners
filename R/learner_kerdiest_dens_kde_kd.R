@@ -9,7 +9,7 @@
 #' @template example
 #' @export
 LearnerDensKDEkd = R6Class("LearnerDensKDEkd",
-  inherit = LearnerDens,
+  inherit = mlr3proba::LearnerDens,
 
   public = list(
     #' @description
@@ -27,8 +27,8 @@ LearnerDensKDEkd = R6Class("LearnerDensKDEkd",
       super$initialize(
         id = "dens.kde_kd",
         packages = "kerdiest",
-        feature_types = c("logical", "integer", "numeric", "character", "factor", "ordered"),
-        predict_types = "pdf",
+        feature_types = c("integer", "numeric"),
+        predict_types = c("pdf", "distr"),
         param_set = ps,
         man = "mlr3extralearners::mlr_learners_dens.kde_kd"
       )
@@ -40,7 +40,7 @@ LearnerDensKDEkd = R6Class("LearnerDensKDEkd",
 
       pars = self$param_set$get_values(tag = "train")
 
-      data = task$truth()
+      data = task$data()[[1]]
 
       pdf <- function(x) {
       }
@@ -49,25 +49,43 @@ LearnerDensKDEkd = R6Class("LearnerDensKDEkd",
       })
 
       if (is.null(pars$type_kernel)) {
-        kernel = "Normal"
+        kernel = "Norm"
       } else {
         kernel = switch(pars$type_kernel,
-          "n" = "Normal",
-          "e" = "Epanechnikov",
-          "b" = "Biweight",
-          "t" = "Triweight")
+          "n" = "Norm",
+          "e" = "Epan",
+          "b" = "Quart",
+          "t" = "Triw")
       }
 
-      distr6::Distribution$new(
-        name = paste("kerdiest KDE", kernel),
-        short_name = paste0("kerdiestKDEKern_", kernel),
-        pdf = pdf, type = set6::Reals$new())
+      bw = kerdiest::CVbw(vec_data=data)$bw
+
+      if (is.null(pars$bw)) {
+        bw  = kerdiest::CVbw(vec_data=  data)$bw
+      } else {
+        bw = pars$bw}
+
+      ps = ParameterSet$new(id = list("bandwidth", "kernel"),
+                            value =  list(bw, kernel),
+                            support = list(set6::Reals$new(),
+                                           set6::Set$new(elements = as.list(distr6::listKernels()[,1]))
+                            ))
+
+
+      structure(list( distr = distr6::Distribution$new(
+        name = paste("kerdiest KDE"),
+        short_name = paste0("kerdiestKDEKern_"),
+        pdf = pdf, type = set6::Reals$new(), parameters = ps),
+        bandwidth = bw,
+        kernel = kernel
+      ))
     },
 
     .predict = function(task) {
-      list(pdf = self$model$pdf(task$truth()))
+      list(pdf = self$model$distr$pdf(task$data()[[1]]),
+           distr =  self$model$distr)
     }
   )
 )
 
-lrns_dict$add("dens.kde_kd", LearnerDensKDEkd)
+.extralrns_dict$add("dens.kde_kd", LearnerDensKDEkd)

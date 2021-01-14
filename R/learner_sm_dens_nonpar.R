@@ -15,7 +15,7 @@
 #' @template example
 #' @export
 LearnerDensNonparametric = R6Class("LearnerDensNonparametric",
-  inherit = LearnerDens,
+  inherit = mlr3proba::LearnerDens,
 
   public = list(
     #' @description
@@ -39,7 +39,7 @@ LearnerDensNonparametric = R6Class("LearnerDensNonparametric",
       super$initialize(
         id = "dens.nonpar",
         packages = "sm",
-        feature_types = c("logical", "integer", "numeric", "character", "factor", "ordered"),
+        feature_types = c("integer", "numeric"),
         predict_types = "pdf",
         param_set = ps,
         properties = "weights",
@@ -56,25 +56,42 @@ LearnerDensNonparametric = R6Class("LearnerDensNonparametric",
         pars$weights = task$weights$weight
       }
 
-      pdf = function(x) {
-      } # nolint
+      if (is.null(pars$h)) {
+        bw = sm::hnorm(x = task$data()[[1]])
+      } else {
+        bw = pars$h
+      }
+
+      pdf = function(x) {} # nolint
       body(pdf) = substitute({
         mlr3misc::invoke(sm::sm.density,
           x = data, eval.points = x, display = "none", show.script = FALSE,
           .args = pars)$estimate
-      }, list(data = task$truth()))
+      }, list(data = task$data()[[1]]))
 
-      distr6::Distribution$new(
+
+      ps = ParameterSet$new(id = list("bandwidth", "kernel"),
+                            value =  list(bw, "Norm"),
+                            support = list(set6::Reals$new(),
+                                           set6::Set$new(elements = as.list(distr6::listKernels()[,1]))
+                            ))
+
+      structure(list(distr = distr6::Distribution$new(
         name = "Nonparametric Density",
         short_name = "NonparDens",
         type = set6::Reals$new(),
-        pdf = pdf)
+        pdf = pdf,
+        parameters = ps),
+      kernel = "Norm",
+      bandwidth = bw
+      ))
     },
 
     .predict = function(task) {
-      list(pdf = self$model$pdf(task$truth()))
+      list(pdf = self$model$distr$pdf(task$data()[[1]]),
+           distr = self$model$distr)
     }
   )
 )
 
-lrns_dict$add("dens.nonpar", LearnerDensNonparametric)
+.extralrns_dict$add("dens.nonpar", LearnerDensNonparametric)
