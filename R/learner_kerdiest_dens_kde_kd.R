@@ -58,32 +58,37 @@ LearnerDensKDEkd = R6Class("LearnerDensKDEkd",
           "t" = "Triw")
       }
 
-      bw = kerdiest::CVbw(vec_data=data)$bw
+      bw = kerdiest::CVbw(vec_data = data)$bw
 
       if (is.null(pars$bw)) {
-        bw  = kerdiest::CVbw(vec_data=  data)$bw
+        bw = kerdiest::CVbw(vec_data = data)$bw
       } else {
-        bw = pars$bw}
+        bw = pars$bw
+      }
 
-      ps = ParameterSet$new(id = list("bandwidth", "kernel"),
-                            value =  list(bw, kernel),
-                            support = list(set6::Reals$new(),
-                                           set6::Set$new(elements = as.list(distr6::listKernels()[,1]))
-                            ))
+      ps = ParameterSet$new(
+        id = list("bandwidth", "kernel"),
+        value = list(bw, kernel),
+        support = list(
+          set6::Reals$new(),
+          set6::Set$new(elements = as.list(distr6::listKernels()[, 1]))
+      ))
 
 
-      structure(list( distr = distr6::Distribution$new(
-        name = paste("kerdiest KDE"),
-        short_name = paste0("kerdiestKDEKern_"),
-        pdf = pdf, type = set6::Reals$new(), parameters = ps),
+      structure(list(
+        distr = distr6::Distribution$new(
+          name = paste("kerdiest KDE"),
+          short_name = paste0("kerdiestKDEKern_"),
+          pdf = pdf, type = set6::Reals$new(), parameters = ps),
         bandwidth = bw,
         kernel = kernel
       ))
     },
 
     .predict = function(task) {
-      list(pdf = self$model$distr$pdf(task$data()[[1]]),
-           distr =  self$model$distr)
+      list(
+        pdf = self$model$distr$pdf(task$data()[[1]]),
+        distr = self$model$distr)
     }
   )
 )

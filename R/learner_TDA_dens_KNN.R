@@ -39,25 +39,24 @@ LearnerDensKnn = R6Class("LearnerDensKnn",
   ),
 
   private = list(
-
     .train = function(task) {
+      pars = self$param_set$get_values(tags = "train")
 
-        pars = self$param_set$get_values(tags = "train")
+      data = task$data()[[1]]
 
-        data = task$data()[[1]]
+      pdf <- function(x) {
+      }
+      body(pdf) <- substitute({
+        mlr3misc::invoke(TDA::knnDE,
+          X = matrix(data, ncol = 1),
+          Grid = matrix(x, ncol = 1), .args = pars)
+      })
 
-        pdf <- function(x) {
-        }
-        body(pdf) <- substitute({
-          mlr3misc::invoke(TDA::knnDE, X = matrix(data, ncol = 1),
-                           Grid = matrix(x, ncol = 1), .args = pars)
-        })
-
-        structure(list(distr = distr6::Distribution$new(
-          name = paste("KNN Density"),
-          short_name = paste0("knnDens"),
-          pdf = pdf, type = set6::Reals$new())
-        ))
+      structure(list(distr = distr6::Distribution$new(
+        name = paste("KNN Density"),
+        short_name = paste0("knnDens"),
+        pdf = pdf, type = set6::Reals$new())
+      ))
     },
 
     .predict = function(task) {
@@ -68,4 +67,3 @@ LearnerDensKnn = R6Class("LearnerDensKnn",
 )
 
 .extralrns_dict$add("dens.KNN", LearnerDensKnn)
-

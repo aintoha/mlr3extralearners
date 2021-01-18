@@ -5,6 +5,8 @@ test_that("dens.KNN train", {
   learner = lrn("dens.KNN")
   fun = TDA::knnDE
   exclude = c(
+    "X", #
+    "Grid"
   )
 
   ParamTest = run_paramtest(learner, fun, exclude)
@@ -14,15 +16,3 @@ test_that("dens.KNN train", {
 ")))
 })
 
-test_that("dens.KNN predict", {
-  learner = lrn("dens.KNN")
-  fun = TDA:::predict
-    exclude = c(
-    )
-
-  ParamTest = run_paramtest(learner, fun, exclude)
-  expect_true(ParamTest, info = paste0(
-    "Missing parameters:",
-    paste0("- '", ParamTest$missing, "'", collapse = "
-")))
-})

@@ -76,42 +76,49 @@ LearnerDensMixed = R6Class("LearnerDensMixed",
 
   private = list(
     .train = function(task) {
+
       pars = self$param_set$get_values(tag = "train")
       data = task$data()[[1]]
 
-      pdf <- function(x) {} #nolint
+      pdf <- function(x) {
+      } # nolint
       body(pdf) <- substitute({
         with_package("np", mlr3misc::invoke(np::npudens,
           tdat = data.frame(data),
           edat = data.frame(x), .args = pars)$dens)
       })
 
-      if (is.null(pars$ckertype))  {
+      if (is.null(pars$ckertype)) {
         kernel = "Norm"
       } else {
         kernel = switch(pars$ckertype,
-                        "gaussian" = "Norm",
-                        "epanechnikov" = "Epan",
-                        "uniform" = "Unif"
-                        )
+          "gaussian" = "Norm",
+          "epanechnikov" = "Epan",
+          "uniform" = "Unif"
+        )
       }
 
       if (is.null(pars$bws)) {
-        bw = np::npudensbw(dat=data, bwmethod="cv.ml")$bw
-      } else {bw = pars$bws}
+        bw = np::npudensbw(dat = data, bwmethod = "cv.ml")$bw
+      } else {
+        bw = pars$bws
+      }
 
 
-      ps = ParameterSet$new(id = list("bandwidth", "kernel"),
-                            value =  list(bw, kernel),
-                            support = list(set6::Reals$new(),
-                                           set6::Set$new(elements = as.list(distr6::listKernels()[,1]))
-                            ))
+      ps = ParameterSet$new(
+        id = list("bandwidth", "kernel"),
+        value = list(bw, kernel),
+        support = list(
+          set6::Reals$new(),
+          set6::Set$new(elements = as.list(distr6::listKernels()[, 1]))
+      ))
 
-      structure(list(distr = distr6::Distribution$new(
-        name = paste("Mixed KDE"),
-        short_name = paste0("MixedKDE"),
-        pdf = pdf, type = set6::Reals$new(),
-        parameters = ps),
+      structure(list(
+        distr = distr6::Distribution$new(
+          name = paste("Mixed KDE"),
+          short_name = paste0("MixedKDE"),
+          pdf = pdf, type = set6::Reals$new(),
+          parameters = ps),
         kernel = kernel,
         bandwidth = bw
       ))
@@ -120,8 +127,9 @@ LearnerDensMixed = R6Class("LearnerDensMixed",
     },
 
     .predict = function(task) {
-      list(pdf = self$model$distr$pdf(task$data()[[1]]),
-           distr = self$model$distr)
+      list(
+        pdf = self$model$distr$pdf(task$data()[[1]]),
+        distr = self$model$distr)
     }
   )
 )

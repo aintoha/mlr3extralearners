@@ -31,8 +31,8 @@ Suggests:
     coin,
     CoxBoost,
     dbarts,
-    earth,
     distr6 (>= 1.4.3),
+    earth,
     extraTrees,
     flexsurv,
     FNN,
@@ -71,9 +71,9 @@ Suggests:
     survival,
     survivalmodels (>= 0.1.4),
     survivalsvm,
+    TDA,
     tensorflow (>= 2.0.0),
     testthat,
-    TDA,
     usethis
 Remotes:
     mlr-org/mlr3proba

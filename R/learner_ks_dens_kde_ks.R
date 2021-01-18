@@ -51,6 +51,7 @@ LearnerDensKDEks = R6Class("LearnerDensKDEks",
 
   private = list(
     .train = function(task) {
+
       pars = self$param_set$get_values(tag = "train")
 
       data = task$data()[[1]]
@@ -62,28 +63,33 @@ LearnerDensKDEks = R6Class("LearnerDensKDEks",
       })
 
       if (is.null(pars$h)) {
-        bw  = ks::hpi(data)
+        bw = ks::hpi(data)
       } else {
-        bw = pars$h}
+        bw = pars$h
+      }
 
-      ps = distr6::ParameterSet$new(id = list("bandwidth", "kernel"),
-                            value =  list(bw, "Norm"),
-                            support = list(set6::Reals$new(),
-                                           set6::Set$new(elements = as.list(distr6::listKernels()[,1]))
-                            ))
+      ps = distr6::ParameterSet$new(
+        id = list("bandwidth", "kernel"),
+        value = list(bw, "Norm"),
+        support = list(
+          set6::Reals$new(),
+          set6::Set$new(elements = as.list(distr6::listKernels()[, 1]))
+      ))
 
-      structure(list(distr = distr6::Distribution$new(
-        name = "ks KDE",
-        short_name = "ksKDE",
-        pdf = pdf, type = set6::Reals$new(),
-        parameters = ps),
+      structure(list(
+        distr = distr6::Distribution$new(
+          name = "ks KDE",
+          short_name = "ksKDE",
+          pdf = pdf, type = set6::Reals$new(),
+          parameters = ps),
         bandwith = bw,
         kernel = "Norm"))
     },
 
     .predict = function(task) {
-      list(pdf = self$model$distr$pdf(task$data()[[1]]),
-           distr = self$model$distr)
+      list(
+        pdf = self$model$distr$pdf(task$data()[[1]]),
+        distr = self$model$distr)
     }
   )
 )

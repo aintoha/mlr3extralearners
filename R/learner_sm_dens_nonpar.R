@@ -50,6 +50,7 @@ LearnerDensNonparametric = R6Class("LearnerDensNonparametric",
 
   private = list(
     .train = function(task) {
+
       pars = self$param_set$get_values(tag = "train")
 
       if ("weights" %in% task$properties) {
@@ -62,7 +63,8 @@ LearnerDensNonparametric = R6Class("LearnerDensNonparametric",
         bw = pars$h
       }
 
-      pdf = function(x) {} # nolint
+      pdf = function(x) {
+      } # nolint
       body(pdf) = substitute({
         mlr3misc::invoke(sm::sm.density,
           x = data, eval.points = x, display = "none", show.script = FALSE,
@@ -70,26 +72,30 @@ LearnerDensNonparametric = R6Class("LearnerDensNonparametric",
       }, list(data = task$data()[[1]]))
 
 
-      ps = ParameterSet$new(id = list("bandwidth", "kernel"),
-                            value =  list(bw, "Norm"),
-                            support = list(set6::Reals$new(),
-                                           set6::Set$new(elements = as.list(distr6::listKernels()[,1]))
-                            ))
+      ps = ParameterSet$new(
+        id = list("bandwidth", "kernel"),
+        value = list(bw, "Norm"),
+        support = list(
+          set6::Reals$new(),
+          set6::Set$new(elements = as.list(distr6::listKernels()[, 1]))
+      ))
 
-      structure(list(distr = distr6::Distribution$new(
-        name = "Nonparametric Density",
-        short_name = "NonparDens",
-        type = set6::Reals$new(),
-        pdf = pdf,
-        parameters = ps),
-      kernel = "Norm",
-      bandwidth = bw
+      structure(list(
+        distr = distr6::Distribution$new(
+          name = "Nonparametric Density",
+          short_name = "NonparDens",
+          type = set6::Reals$new(),
+          pdf = pdf,
+          parameters = ps),
+        kernel = "Norm",
+        bandwidth = bw
       ))
     },
 
     .predict = function(task) {
-      list(pdf = self$model$distr$pdf(task$data()[[1]]),
-           distr = self$model$distr)
+      list(
+        pdf = self$model$distr$pdf(task$data()[[1]]),
+        distr = self$model$distr)
     }
   )
 )

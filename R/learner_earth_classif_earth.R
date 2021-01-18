@@ -75,8 +75,9 @@ LearnerClassifEarth = R6Class("LearnerClassifEarth",
       p = unname(predict(self$model, newdata = newdata, type = "response"))
       levs = task$levels(task$target_names)[[1]]
       if (self$predict_type == "response") {
-        pred = PredictionClassif$new(task = task,
-                                  response = ifelse(p < 0.5, levs[1L], levs[2L]))
+        pred = PredictionClassif$new(
+          task = task,
+          response = ifelse(p < 0.5, levs[1L], levs[2L]))
       } else {
         pred = PredictionClassif$new(task = task, prob = prob_vector_to_matrix(p, levs))
       }
