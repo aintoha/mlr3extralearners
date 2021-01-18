@@ -73,6 +73,7 @@ Suggests:
     survivalsvm,
     tensorflow (>= 2.0.0),
     testthat,
+    TDA,
     usethis
 Remotes:
     mlr-org/mlr3proba
