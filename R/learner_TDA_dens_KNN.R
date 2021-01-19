@@ -54,16 +54,24 @@ LearnerDensKnn = R6Class("LearnerDensKnn",
           Grid = matrix(x, ncol = 1), k = k)
       })
 
+      ps = distr6::ParameterSet$new(
+        id = list("k"),
+        value = list(k),
+        support = list(
+          set6::Reals$new()
+        ))
+
       structure(list(distr = distr6::Distribution$new(
         name = paste("KNN Density"),
         short_name = paste0("knnDens"),
-        pdf = pdf, type = set6::Reals$new())
+        pdf = pdf, type = set6::Reals$new(),
+        parameters = ps)
       ))
     },
 
     .predict = function(task) {
       newdata = task$data()[[1]]
-      list(pdf = self$model$distr$pdf(newdata))
+      list(pdf = self$model$distr$pdf(newdata), distr = self$model$distr)
     }
   )
 )
