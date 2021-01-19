@@ -18,12 +18,11 @@ LearnerDensKnn = R6Class("LearnerDensKnn",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
-      ps = ParamSet$new(
-        params = list(
-          ParamInt$new(id = "k", default = 1, tags = "train")
-        )
-      )
-      ps$values = list(k = 1)
+      ps = ParamSet$new(list(
+        ParamDbl$new("k",
+                     lower = 1, tags = "train",
+                     special_vals = list("silver", "kung"))))
+      ps$values = list(k = "silver")
 
       super$initialize(
         id = "dens.KNN",
@@ -40,16 +39,19 @@ LearnerDensKnn = R6Class("LearnerDensKnn",
 
   private = list(
     .train = function(task) {
-      pars = self$param_set$get_values(tags = "train")
 
       data = task$data()[[1]]
+
+      k = ifelse(self$param_set$values$k == "silver"| is.null(self$param_set$values$k), ceiling(length(data)^(0.5)),
+                 ifelse(self$param_set$values$k == "kung", ceiling(length(data)), self$param_set$values$k))
+
 
       pdf <- function(x) {
       }
       body(pdf) <- substitute({
         mlr3misc::invoke(TDA::knnDE,
           X = matrix(data, ncol = 1),
-          Grid = matrix(x, ncol = 1), .args = pars)
+          Grid = matrix(x, ncol = 1), k = k)
       })
 
       structure(list(distr = distr6::Distribution$new(
