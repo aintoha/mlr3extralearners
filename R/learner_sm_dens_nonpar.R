@@ -72,7 +72,7 @@ LearnerDensNonparametric = R6Class("LearnerDensNonparametric",
       }, list(data = task$data()[[1]]))
 
 
-      ps = ParameterSet$new(
+      ps = distr6::ParameterSet$new(
         id = list("bandwidth", "kernel"),
         value = list(bw, "Norm"),
         support = list(

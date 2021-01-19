@@ -66,7 +66,7 @@ LearnerDensKDEkd = R6Class("LearnerDensKDEkd",
         bw = pars$bw
       }
 
-      ps = ParameterSet$new(
+      ps = distr6::ParameterSet$new(
         id = list("bandwidth", "kernel"),
         value = list(bw, kernel),
         support = list(
